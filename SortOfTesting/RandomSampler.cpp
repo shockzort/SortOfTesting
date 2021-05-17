@@ -1,17 +1,17 @@
 #include "RandomSampler.h"
 
-int RandomSampler::generateUniformInt(int from, int to)
+int32_t RandomSampler::generateUniformInt(int32_t from, int32_t to)
 {
-	static std::uniform_int_distribution<int> uint_from_to(from, to);
+	static std::uniform_int_distribution<int32_t> uint_from_to(from, to);
 
 	return uint_from_to(randomGenerator);
 }
 
-int RandomSampler::generateNormalInt(float mean, float sigma)
+int32_t RandomSampler::generateNormalInt(float mean, float sigma)
 {
 	static std::normal_distribution<> nint_from_to(mean, sigma);
 
-	return static_cast<int>(round(nint_from_to(randomGenerator)));
+	return static_cast<int32_t>(round(nint_from_to(randomGenerator)));
 }
 
 float RandomSampler::generateUniformFloat(float from, float to)
@@ -28,9 +28,9 @@ float RandomSampler::generateNormalFloat(float mean, float sigma)
 	return nfloat_from_to(randomGenerator);
 }
 
-std::vector<int> RandomSampler::generateUniformIntVector(int sample_length, int from, int to)
+std::vector<int32_t> RandomSampler::generateUniformIntVector(int32_t sample_length, int32_t from, int32_t to)
 {
-	std::vector<int> result;
+	std::vector<int32_t> result;
 	result.resize(sample_length);
 
 	for (auto it = 0; it < sample_length; ++it)
@@ -42,20 +42,20 @@ std::vector<int> RandomSampler::generateUniformIntVector(int sample_length, int 
 }
 
 
-int RandomSampler::sampleNormalValueInRange(std::normal_distribution<> & sampler, int from, int to)
+int32_t RandomSampler::sampleNormalValueInRange(std::normal_distribution<> & sampler, int32_t from, int32_t to)
 {
 	while (true)
 	{
-		const auto number = static_cast<int>(round(sampler(randomGenerator)));
+		const auto number = static_cast<int32_t>(round(sampler(randomGenerator)));
 
 		if (number >= from && number <= to)
 			return number;
 	}
 }
 
-std::vector<int> RandomSampler::generateNormalIntVector(int sample_length, int from, int to, int mean, int sigma)
+std::vector<int32_t> RandomSampler::generateNormalIntVector(int32_t sample_length, int32_t from, int32_t to, int32_t mean, int32_t sigma)
 {
-	std::vector<int> result;
+	std::vector<int32_t> result;
 	result.resize(sample_length);
 
 	static std::normal_distribution<> nint_from_to(mean, sigma);
@@ -70,7 +70,7 @@ std::vector<int> RandomSampler::generateNormalIntVector(int sample_length, int f
 
 
 
-std::vector<float> RandomSampler::generateUniformFloatVector(int sample_length, float from, float to)
+std::vector<float> RandomSampler::generateUniformFloatVector(int32_t sample_length, float from, float to)
 {
 	std::vector<float> result;
 	result.resize(sample_length);
@@ -95,7 +95,7 @@ float RandomSampler::sampleNormalValueInRange(std::normal_distribution<float> & 
 	}
 }
 
-std::vector<float> RandomSampler::generateNormalFloatVector(int sample_length, float from, float to, 
+std::vector<float> RandomSampler::generateNormalFloatVector(int32_t sample_length, float from, float to, 
 	const float mean, const float sigma)
 {
 	std::vector<float> result;
