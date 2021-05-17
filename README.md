@@ -1,0 +1,3 @@
+# SortOfTesting
+
+This is a a project for development, testing and comparison of different sorting algorithms in terms of number of swaps-comparisons per input array size.
