@@ -22,6 +22,22 @@ public:
 	std::vector<float> generateNormalFloatVector(int32_t sample_length, float from, float to, float mean, float sigma);
 	std::vector<float> generateUniformFloatVector(int32_t sample_length, float from, float to);
 
+
+	template<typename container_type, typename T = typename container_type::value_type>
+	void shuffle_array_set(std::vector<container_type> & array_of_arrays)
+	{
+		for(auto & array : array_of_arrays)
+		{
+			shuffle_array(array);
+		}
+	}
+	
+	template<typename container_type, typename T = typename container_type::value_type>
+	void shuffle_array(container_type& array)
+	{
+		std::shuffle(array.begin(), array.end(), randomGenerator);
+	}
+	
 	template <class T, typename std::enable_if<std::is_same<T, float>::value, std::size_t>::type = 0>
 	std::vector<std::vector<T>> generateRandomArrays(std::vector<uint32_t> const& array_sizes)
 	{

@@ -7,9 +7,12 @@
 #include <vector>
 #include <chrono>
 #include <tuple>
+#include <string>
 
+// Main function
 void testSorting_algorithms(const std::vector<uint32_t>& test_data_lengths, bool normalize_result);
 
+// Selection sort algorithm implementation
 template<typename container_type, typename T = typename container_type::value_type>
 void sort_by_selection(container_type& container)
 {
@@ -38,6 +41,7 @@ void sort_by_selection(container_type& container)
 }
 
 
+// Selection sort algorithm implementation optimized to find min and max in one loop (cocktail sort like)
 template<typename container_type, typename T = typename container_type::value_type>
 void sort_by_selection_opt(container_type& container)
 {
@@ -88,6 +92,8 @@ void sort_by_selection_opt(container_type& container)
 	}
 }
 
+
+// Insertion sort algorithm implementation
 template<typename container_type, typename T = typename container_type::value_type>
 void sort_by_insertion(container_type& container)
 {
@@ -109,6 +115,7 @@ void sort_by_insertion(container_type& container)
 }
 
 
+// Selection sort algorithm with operation counters
 template<typename container_type, typename T = typename container_type::value_type>
 std::tuple<uint64_t, uint64_t> sort_by_selection_counters(container_type& container)
 {
@@ -143,6 +150,7 @@ std::tuple<uint64_t, uint64_t> sort_by_selection_counters(container_type& contai
 }
 
 
+// Optimized Selection sort algorithm with operation counters
 template<typename container_type, typename T = typename container_type::value_type>
 std::tuple<uint64_t, uint64_t> sort_by_selection_opt_counters(container_type& container)
 {
@@ -199,6 +207,7 @@ std::tuple<uint64_t, uint64_t> sort_by_selection_opt_counters(container_type& co
 	return std::make_tuple(swaps, comparisons);
 }
 
+// Insertion sort algorithm with operation counters
 template<typename container_type, typename T = typename container_type::value_type>
 std::tuple<uint64_t, uint64_t> sort_by_insertion_counters(container_type& container)
 {
@@ -225,34 +234,89 @@ std::tuple<uint64_t, uint64_t> sort_by_insertion_counters(container_type& contai
 	return std::make_tuple(swaps, comparisons);
 }
 
+// Function to check if two containers contain same values
 template<typename container_type, typename T = typename container_type::value_type>
 bool check_array_diff(container_type& array1, container_type& array2)
 {
 	assert(array1.size() == array2.size());
 
-	int32_t diff = 0;
+	float diff = 0.0f;
 	for (size_t index = 0; index < array1.size(); ++index)
 	{
 		diff += array1[index] - array2[index];
 	}
 
-	return diff == 0 ? true : false;
+	return diff == 0.0f ? true : false;
+}
+
+
+template<typename container_type, typename T = typename container_type::value_type>
+std::string print_container(container_type const& container)
+{
+	std::string result;
+	
+	for (auto & element : container)
+		result.append(std::to_string(element) + " ");
+
+	return result;
 }
 
 template<typename container_type, typename T = typename container_type::value_type>
-using sorting_function_type = std::tuple<uint64_t, uint64_t> (*)(container_type&);
+using sorting_function_type_counters = std::tuple<uint64_t, uint64_t> (*)(container_type&);
 
 template<typename container_type, typename T = typename container_type::value_type>
-float testSorting_algorithm(sorting_function_type<container_type> sort_method,
+using sorting_function_type = void(*)(container_type&);
+
+// Template for sorting correctness checking, comparing with std::sort
+template<typename container_type, typename T = typename container_type::value_type>
+bool testSorting_algorithm_correctness(sorting_function_type<container_type> sort_method,
+	std::vector<container_type>& array_to_sort, const std::string& alg_name)
+{
+	bool all_sorts_correct = true;
+	for (auto& array : array_to_sort)
+	{
+		auto copy = array;
+		sort_method(array);
+
+		std::sort(copy.begin(), copy.end());
+		const auto correct_sort = check_array_diff(copy, array);
+
+		all_sorts_correct = all_sorts_correct && correct_sort;
+	}
+
+	all_sorts_correct ? printf("%s algorithm implementation is correct\n", alg_name.c_str()) :
+		printf("%s algorithm implementation is incorrect!\n", alg_name.c_str());
+
+	return all_sorts_correct;
+}
+
+// Template for sorting speed measurement, using high_resolution_clock
+template<typename container_type, typename T = typename container_type::value_type>
+float testSorting_algorithm_speed(sorting_function_type<container_type> sort_method, std::vector<container_type>& array_to_sort)
+{
+	const auto time_start = std::chrono::high_resolution_clock::now();
+
+	for (auto& array : array_to_sort)
+	{	
+		sort_method(array);
+	}
+
+	const auto time_end = std::chrono::high_resolution_clock::now();
+	const auto time_elapsed = std::chrono::duration_cast<std::chrono::microseconds>(time_end - time_start);
+
+	return static_cast<float>(time_elapsed.count() * 0.001f);
+}
+
+
+// Template for sorting operation counting
+template<typename container_type, typename T = typename container_type::value_type>
+float testSorting_algorithm_operations(sorting_function_type_counters<container_type> sort_method,
 	std::vector<container_type> & array_to_sort, const std::string & alg_name, bool normalize_result = false)
 {
 	const auto time_start = std::chrono::high_resolution_clock::now();
 	
 	for (auto& array : array_to_sort)
 	{
-#ifdef DEBUG_
-		auto copy = array;
-#endif		
 		auto [swaps, comparisons] = sort_method(array);
 
 		if (normalize_result)
@@ -268,14 +332,6 @@ float testSorting_algorithm(sorting_function_type<container_type> sort_method,
 			printf("%s algorithm has %llu swaps and %llu comparisons for array of size %llu\n", 
 				alg_name.c_str(), swaps, comparisons, array.size());
 		}
-				
-#ifdef DEBUG_
-		std::sort(copy.begin(), copy.end());
-		const auto result = check_array_diff(copy, array);
-
-		result ? printf("%s algorithm is correct\n", alg_name.c_str()) :
-			printf("%s algorithm is incorrect!\n", alg_name.c_str());
-#endif
 	}
 
 	const auto time_end = std::chrono::high_resolution_clock::now();
