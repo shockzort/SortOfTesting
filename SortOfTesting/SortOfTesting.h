@@ -3,11 +3,12 @@
 //#define DEBUG_
 #include <memory>
 #include <cassert>
-#include <iostream>
 #include <vector>
 #include <chrono>
 #include <tuple>
 #include <string>
+#include <fstream>
+#include <sstream>
 
 // Main function
 void testSorting_algorithms(const std::vector<uint32_t>& test_data_lengths, bool normalize_result);
@@ -308,12 +309,19 @@ float testSorting_algorithm_speed(sorting_function_type<container_type> sort_met
 }
 
 
+inline void write_to_ofstream(std::ofstream & file, std::string && data)
+{
+	if (file.is_open())
+		file << data << std::endl;
+}
+
 // Template for sorting operation counting
 template<typename container_type, typename T = typename container_type::value_type>
-float testSorting_algorithm_operations(sorting_function_type_counters<container_type> sort_method,
+std::tuple<std::string, std::string> testSorting_algorithm_operations(sorting_function_type_counters<container_type> sort_method,
 	std::vector<container_type> & array_to_sort, const std::string & alg_name, bool normalize_result = false)
 {
-	const auto time_start = std::chrono::high_resolution_clock::now();
+	std::ostringstream swaps_data;
+	std::ostringstream comparisons_data;
 	
 	for (auto& array : array_to_sort)
 	{
@@ -321,21 +329,28 @@ float testSorting_algorithm_operations(sorting_function_type_counters<container_
 
 		if (normalize_result)
 		{
-			auto result_swaps = static_cast<double>(swaps) / array.size();
-			auto result_comparisons = static_cast<double>(comparisons) / array.size();
+			auto result_swaps = std::log10(swaps);// static_cast<double>(swaps) / array.size();
+			auto result_comparisons = std::log10(comparisons); //static_cast<double>(comparisons) / array.size();
+
+			swaps_data.precision(5);
+			comparisons_data.precision(5);
+			
+			swaps_data << std::fixed << result_swaps << "\t";
+			comparisons_data << std::fixed << result_comparisons << "\t";
 
 			printf("%s algorithm has %.2f swaps and %.2f comparisons for array of size %llu\n", 
 				alg_name.c_str(), result_swaps, result_comparisons, array.size());
 		}
 		else
 		{
+			swaps_data << swaps << "\t";
+			comparisons_data << comparisons << "\t";
+
 			printf("%s algorithm has %llu swaps and %llu comparisons for array of size %llu\n", 
 				alg_name.c_str(), swaps, comparisons, array.size());
 		}
+		
 	}
 
-	const auto time_end = std::chrono::high_resolution_clock::now();
-	const auto time_elapsed = std::chrono::duration_cast<std::chrono::microseconds>(time_end - time_start);
-
-	return static_cast<float>(time_elapsed.count() * 0.001f);
+	return std::make_tuple(swaps_data.str(), comparisons_data.str());
 }
