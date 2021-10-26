@@ -74,14 +74,14 @@ public:
 
 private:
 
-	static constexpr int32_t min_allowed_data_len = 1;
-	static constexpr int32_t max_allowed_data_len = 1000000;
+	const int32_t min_allowed_data_len = 1;
+	const int32_t max_allowed_data_len = 1000000;
 
-	static constexpr float min_allowed_float_data_val = 0.0f;
-	static constexpr float max_allowed_float_data_val = 1.0f;
+	const float min_allowed_float_data_val = 0.0f;
+	const float max_allowed_float_data_val = 1.0f;
 
-	static constexpr int32_t min_allowed_int_data_val = 1;
-	static constexpr int32_t max_allowed_int_data_val = 10000;
+	const int32_t min_allowed_int_data_val = 1;
+	const int32_t max_allowed_int_data_val = 10000;
 
 	std::random_device randomDevice {};
 	std::default_random_engine randomGenerator;
