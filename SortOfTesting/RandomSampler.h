@@ -74,8 +74,8 @@ public:
 
 private:
 
-	const int32_t min_allowed_data_len = 1;
-	const int32_t max_allowed_data_len = 1000000;
+	static const int32_t min_allowed_data_len = 1;
+	static const int32_t max_allowed_data_len = 1000000;
 
 	const float min_allowed_float_data_val = 0.0f;
 	const float max_allowed_float_data_val = 1.0f;
